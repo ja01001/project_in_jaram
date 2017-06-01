@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.ja010.project.MainActivity"
+    android:weightSum="1">
+    <VideoView
+        android:id="@+id/vidio"
+        android:layout_width="match_parent"
+        android:layout_height="250dp" />
+    <LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <EditText
+        android:id="@+id/ed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="9"/>
+        <Button
+            android:onClick="clcl"
+            android:layout_weight="1"
+            android:id="@+id/btnsearch"
+            android:layout_width="wrap_content"
+            android:text="searcing"
+            android:layout_height="match_parent" />
+        <Button
+            android:onClick="clcl"
+            android:layout_weight="1"
+            android:id="@+id/btnurl"
+            android:layout_width="wrap_content"
+            android:text="URL COPY"
+            android:layout_height="match_parent" />
+</LinearLayout>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_weight="0.9">
+
+    </ListView>
+
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <Button
+            android:layout_weight="1"
+            android:id="@+id/btnstore"
+            android:onClick="clcl"
+            android:text="store"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:text="list random"
+            android:layout_weight="1"
+            android:id="@+id/btnrandom"
+            android:onClick="clcl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:onClick="clcl"
+            android:id="@+id/btndownload"
+            android:text="download"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</LinearLayout>
