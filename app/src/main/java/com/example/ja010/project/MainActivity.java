@@ -2,13 +2,16 @@ package com.example.ja010.project;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -40,6 +43,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.OnInitializedListener {
@@ -49,6 +53,7 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
     ListView lv;
     String vodid = "";
     YouTubePlayer ytp;
+    String changString;
     YouTubePlayerView youTubeView;
     Task t;
     ArrayList<dataclass > list = new ArrayList<dataclass>();
@@ -61,23 +66,43 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
         lv = (ListView)findViewById(R.id.listview);
         adapter = new DataAdapter(this,list);
         lv.setAdapter(adapter);
-        list.add(new dataclass("naver","aaa"));
-        list.add(new dataclass("11111","112323"));
-        adapter.notifyDataSetChanged();
         youTubeView = (YouTubePlayerView) findViewById(R.id.youtube_view);
         youTubeView.initialize(DeveloperKey.DEVELOPER_KEY,this);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                vodid = list.get(position).getURL();
+                ytp.cueVideo(vodid);
+                changString = list.get(position).getMUSIC_NAME();
+            }
+        });
+        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                dialog.setNegativeButton("아니요",null)
+                        .setTitle("삭제하시겠습니까?")
+                        .setMessage("삭제를 하시겠습니까?")
+                        .setPositiveButton("예", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        list.remove(position);
+                        adapter.notifyDataSetChanged();
+                    }
+                }).show();
+                return true;
+            }
+        });
     }
     @Override
-    public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer player,
-                                        boolean wasRestored) {
+    public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer player,boolean wasRestored) {
         ytp = player;
         if (!wasRestored) {
             player.cueVideo("rAIXE6ilRQ0");
             player.play();
         }
-    }
-
-    @Override
+    }//초기화 시
+    @Override//초기화 실패시
     public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
         if (youTubeInitializationResult.isUserRecoverableError()) {
             youTubeInitializationResult.getErrorDialog(this, RECOVERY_DIALOG_REQUEST).show();
@@ -94,36 +119,32 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
             // Retry initialization if user performed a recovery action
             getYouTubePlayerProvider().initialize(DeveloperKey.DEVELOPER_KEY, this);
         }
-    }
-
+    } // getdata
     protected YouTubePlayer.Provider getYouTubePlayerProvider() {
         return (YouTubePlayerView) findViewById(R.id.youtube_view);
     }
-
     public void clcl(View v){
         switch(v.getId()){
-            case R.id.btnsearch:
+            case R.id.btnsearch: // search 후 바로 동영상 불러오기
                 t = new Task();
                 t.execute();
                 break;
-            case R.id.btnurl:
+            case R.id.btnurl: // clipboard 에 url 을 저장
                 ClipboardManager clipboardManager = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
                 ClipData clipData = ClipData.newPlainText("label","https://www.youtube.com/watch?v="+vodid);
                 clipboardManager.setPrimaryClip(clipData);
-                Toast.makeText(getApplicationContext(),""+clipData,Toast.LENGTH_SHORT).show();
-            case R.id.btnstore: // db에 저장
                 break;
-            case R.id.btnrandom:
+            case R.id.btnstore: // list에 추가 && db에 저장
+                list.add(new dataclass(vodid,changString));
+                adapter.notifyDataSetChanged();
                 break;
-            case R.id.btndownload:
+            case R.id.btnrandom: //sort
+                break;
+            case R.id.btndownload: // download page로 직행
                 Intent i = new Intent(MainActivity.this,Internet.class);
                 startActivity(i);
-
-
                 break;
-
         }
-
     }
     public JSONObject getUtube(){
         HttpGet httpGet = new HttpGet(
@@ -154,7 +175,7 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
         }
 
         return jsonObject;
-    }
+    } // http 접속
     private void paringJsonData(JSONObject jsonObject) throws JSONException {
         JSONArray contacts = jsonObject.getJSONArray("items");
             JSONObject c = contacts.getJSONObject(0);
@@ -164,9 +185,15 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
             }else{
                 vodid = c.getJSONObject("id").getString("playlistId"); // 유튜브
             }
-
             String title = c.getJSONObject("snippet").getString("title"); //유튜브 제목을 받아옵니다
+
+        try {
+            changString = new String(title.getBytes("8859_1"), "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
+
+    } //web 통신
     class Task extends AsyncTask<Void,Void,Void>{
         @Override
         protected void onPreExecute() {
@@ -181,17 +208,12 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
             }
             return null;
         }
-
         @Override
         protected void onPostExecute(Void aVoid) {
-
-//            Intent i = YouTubeStandalonePlayer.createVideoIntent(MainActivity.this,DeveloperKey.DEVELOPER_KEY, vodid);
-//            startActivityForResult(i,0);
-            Toast.makeText(getApplicationContext(),"id: "+vodid,Toast.LENGTH_SHORT).show();
             ytp.cueVideo(vodid);
             super.onPostExecute(aVoid);
         }
-    }
+    } // load youtube load
 
 }
 

@@ -44,10 +44,8 @@ public class DataAdapter  extends BaseAdapter {
             view = LayoutInflater.from(context).inflate(R.layout.item,null);
 
         final TextView tv = (TextView)view.findViewById(R.id.tv1);
-        final ImageView img = (ImageView)view.findViewById(R.id.img1);
         dataclass one = data.get(i);
         tv.setText(one.getMUSIC_NAME());
-
-        return null;
+        return view;
     }
 }

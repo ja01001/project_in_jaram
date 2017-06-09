@@ -5,16 +5,11 @@
     android:layout_height="match_parent">
 
 
-    <ImageView
-        android:id="@+id/img1"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        app:srcCompat="@drawable/rainbow" />
 
     <TextView
         android:layout_marginTop="20dp"
         android:id="@+id/tv1"
-        android:textSize="20dp"
+        android:textSize="15dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="TextView"

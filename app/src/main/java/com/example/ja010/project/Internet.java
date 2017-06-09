@@ -71,4 +71,5 @@ public class Internet extends AppCompatActivity {
             }
         });
     }
+
 }
