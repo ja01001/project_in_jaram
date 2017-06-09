@@ -1,11 +1,15 @@
 package com.example.ja010.project;
 
+import android.Manifest;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.view.View;
@@ -54,6 +58,7 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        permi();
         ED_SEARCH = (EditText)findViewById(R.id.ed);
         lv = (ListView)findViewById(R.id.listview);
         adapter = new DataAdapter(this,list);
@@ -138,6 +143,7 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
                 list.add(new dataclass(vodid,changString));
                 dbs.insert(vodid,changString);
                 adapter.notifyDataSetChanged();
+                btnload.setText("로드");
                 break;
             case R.id.btnsort: //sort
                 adapter.setNAMEASC();
@@ -147,17 +153,23 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
                 startActivity(i);
                 break;
             case R.id.load:
-                Cursor DBLIST =dbs.execSELECTStudent("Select * from music order by id");
-                DBLIST.moveToFirst();
-                String name;
-                String URL;
-                do {name = DBLIST.getString(1);
-                    URL = DBLIST.getString(2);
-                    list.add(new dataclass(name,URL));
+                if(btnload.getText().toString().equals("LOAD")){
+                    Cursor DBLIST =dbs.execSELECTStudent("Select * from music order by id");
+                    DBLIST.moveToFirst();
+                    String name;
+                    String URL;
+                    do {name = DBLIST.getString(1);
+                        URL = DBLIST.getString(2);
+                        list.add(new dataclass(name,URL));
+                    }
+                    while(DBLIST.moveToNext());
+                    DBLIST.close();
+                    adapter.notifyDataSetChanged();
                 }
-                while(DBLIST.moveToNext());
-                DBLIST.close();
-                adapter.notifyDataSetChanged();
+
+                else{
+                    btnload.setText("NONE");
+                }
                 break;
         }
     } // button event
@@ -229,6 +241,21 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
             super.onPostExecute(aVoid);
         }
     } // load youtube load
+    private void permi(){ // 권한 설정
+        int pinfo = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if(pinfo == PackageManager.PERMISSION_GRANTED){
+            Toast.makeText(this,"권한이 있네요",Toast.LENGTH_SHORT).show();
+        }
+        else {
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                Toast.makeText(this,"권한설정좀...",Toast.LENGTH_SHORT).show();
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},100);
+            }
+            else {
+                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},100);
+            }
+        }
+    }
 }
     // internet setting
 
