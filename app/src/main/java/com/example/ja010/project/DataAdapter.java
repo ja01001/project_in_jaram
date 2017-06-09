@@ -9,6 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Created by ja010 on 17-06-01.
@@ -47,5 +50,15 @@ public class DataAdapter  extends BaseAdapter {
         dataclass one = data.get(i);
         tv.setText(one.getMUSIC_NAME());
         return view;
+    }
+    Comparator<dataclass> NAMEASC = new Comparator<dataclass>() {
+        @Override
+        public int compare(dataclass o1, dataclass o2) {
+            return o1.getMUSIC_NAME().compareTo(o2.getMUSIC_NAME());
+        }
+    };
+    public void setNAMEASC(){
+        Collections.sort(data,NAMEASC);
+        this.notifyDataSetChanged();
     }
 }

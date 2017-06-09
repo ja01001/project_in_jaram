@@ -4,33 +4,26 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
-
 /**
  * A simple YouTube Android API demo application which shows how to create a simple application that
  * displays a YouTube Video in a {@link YouTubePlayerView}.
  * <p>
  * Note, to use a {@link YouTubePlayerView}, your activity must extend {@link YouTubeBaseActivity}.
  */
-
 import com.google.android.youtube.player.YouTubeBaseActivity;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerView;
-import com.google.android.youtube.player.YouTubeStandalonePlayer;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -40,16 +33,15 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-
 public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.OnInitializedListener {
-    Button BNT_STORE,BNT_RANDOM,BNT_DOWNLOAD,BNT_SEARCH;
     private static final int RECOVERY_DIALOG_REQUEST = 1;
     EditText ED_SEARCH;
+    MyManageDB dbs;
+    Button btnload;
     ListView lv;
     String vodid = "";
     YouTubePlayer ytp;
@@ -66,8 +58,10 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
         lv = (ListView)findViewById(R.id.listview);
         adapter = new DataAdapter(this,list);
         lv.setAdapter(adapter);
+        dbs = MyManageDB.getInstance(getApplicationContext());
         youTubeView = (YouTubePlayerView) findViewById(R.id.youtube_view);
         youTubeView.initialize(DeveloperKey.DEVELOPER_KEY,this);
+        btnload = (Button)findViewById(R.id.load);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -86,6 +80,8 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
                         .setPositiveButton("예", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        String name =list.get(position).getURL();
+                        dbs.delete(name);
                         list.remove(position);
                         adapter.notifyDataSetChanged();
                     }
@@ -111,7 +107,6 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
             Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
         }
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -126,6 +121,11 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
     public void clcl(View v){
         switch(v.getId()){
             case R.id.btnsearch: // search 후 바로 동영상 불러오기
+                if (ED_SEARCH.getText().toString().equals("")) {
+                    Toast.makeText(getApplicationContext(),"찾을 데이터를 입력하세요! ",Toast.LENGTH_SHORT).show();
+                    ED_SEARCH.setFocusable(true); // focusable
+                    return;
+                }
                 t = new Task();
                 t.execute();
                 break;
@@ -136,16 +136,31 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
                 break;
             case R.id.btnstore: // list에 추가 && db에 저장
                 list.add(new dataclass(vodid,changString));
+                dbs.insert(vodid,changString);
                 adapter.notifyDataSetChanged();
                 break;
-            case R.id.btnrandom: //sort
+            case R.id.btnsort: //sort
+                adapter.setNAMEASC();
                 break;
             case R.id.btndownload: // download page로 직행
                 Intent i = new Intent(MainActivity.this,Internet.class);
                 startActivity(i);
                 break;
+            case R.id.load:
+                Cursor DBLIST =dbs.execSELECTStudent("Select * from music order by id");
+                DBLIST.moveToFirst();
+                String name;
+                String URL;
+                do {name = DBLIST.getString(1);
+                    URL = DBLIST.getString(2);
+                    list.add(new dataclass(name,URL));
+                }
+                while(DBLIST.moveToNext());
+                DBLIST.close();
+                adapter.notifyDataSetChanged();
+                break;
         }
-    }
+    } // button event
     public JSONObject getUtube(){
         HttpGet httpGet = new HttpGet(
                 "https://www.googleapis.com/youtube/v3/search?"
@@ -214,9 +229,6 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
             super.onPostExecute(aVoid);
         }
     } // load youtube load
-
 }
-
-
     // internet setting
 
