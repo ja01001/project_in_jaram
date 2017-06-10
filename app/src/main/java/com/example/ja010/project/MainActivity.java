@@ -143,7 +143,6 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
                 list.add(new dataclass(vodid,changString));
                 dbs.insert(vodid,changString);
                 adapter.notifyDataSetChanged();
-                btnload.setText("로드");
                 break;
             case R.id.btnsort: //sort
                 adapter.setNAMEASC();
@@ -152,31 +151,35 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
                 Intent i = new Intent(MainActivity.this,Internet.class);
                 startActivity(i);
                 break;
-            case R.id.load:
+            case R.id.load: /// 예외처리!!!!
                 if(btnload.getText().toString().equals("LOAD")){
                     Cursor DBLIST =dbs.execSELECTStudent("Select * from music order by id");
                     DBLIST.moveToFirst();
                     String name;
                     String URL;
-                    do {name = DBLIST.getString(1);
-                        URL = DBLIST.getString(2);
-                        list.add(new dataclass(name,URL));
+                    if(DBLIST.getCount() ==0){
+                        Toast.makeText(getApplicationContext(),"NOT EXIST",Toast.LENGTH_SHORT).show();
                     }
-                    while(DBLIST.moveToNext());
-                    DBLIST.close();
-                    adapter.notifyDataSetChanged();
-                }
+                    else {
+                        do {
+                            name = DBLIST.getString(1);
+                            URL = DBLIST.getString(2);
+                            list.add(new dataclass(name, URL));
+                        }
+                        while (DBLIST.moveToNext());
+                        DBLIST.close();
+                        adapter.notifyDataSetChanged();
+                        btnload.setText("NONE");
+                    }
 
-                else{
-                    btnload.setText("NONE");
-                }
+
                 break;
-        }
+                }}
     } // button event
     public JSONObject getUtube(){
         HttpGet httpGet = new HttpGet(
                 "https://www.googleapis.com/youtube/v3/search?"
-                        + "part=snippet&q=" +ED_SEARCH.getText().toString()
+                        + "part=snippet&q=" +ED_SEARCH.getText().toString().trim()
                         + "&key="+DeveloperKey.DEVELOPER_KEY+"&maxResults=50");
         HttpClient client = new DefaultHttpClient();
         HttpResponse response;
@@ -244,7 +247,6 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
     private void permi(){ // 권한 설정
         int pinfo = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if(pinfo == PackageManager.PERMISSION_GRANTED){
-            Toast.makeText(this,"권한이 있네요",Toast.LENGTH_SHORT).show();
         }
         else {
             if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)){
