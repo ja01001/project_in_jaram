@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,7 +55,13 @@ public class DataAdapter  extends BaseAdapter {
     Comparator<dataclass> NAMEASC = new Comparator<dataclass>() {
         @Override
         public int compare(dataclass o1, dataclass o2) {
-            return o1.getMUSIC_NAME().compareTo(o2.getMUSIC_NAME());
+            if(o1.getMUSIC_NAME() == null || o2.getMUSIC_NAME()==null){
+                Toast.makeText(context,"정렬 x",Toast.LENGTH_SHORT).show();
+                return 0;
+            }
+            else {
+                return o1.getMUSIC_NAME().compareTo(o2.getMUSIC_NAME());
+            }
         }
     };
     public void setNAMEASC(){

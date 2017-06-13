@@ -140,9 +140,16 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
                 clipboardManager.setPrimaryClip(clipData);
                 break;
             case R.id.btnstore: // list에 추가 && db에 저장
-                list.add(new dataclass(vodid,changString));
-                dbs.insert(vodid,changString);
-                adapter.notifyDataSetChanged();
+                if (ED_SEARCH.getText().toString().equals("")) {
+                    Toast.makeText(getApplicationContext(),"검색어를 입력하세요 ",Toast.LENGTH_SHORT).show();
+                    ED_SEARCH.setFocusable(true); // focusable
+                    return;
+                }
+                else {
+                    list.add(new dataclass(vodid,changString));
+                    dbs.insert(vodid,changString);
+                    adapter.notifyDataSetChanged();
+                }
                 break;
             case R.id.btnsort: //sort
                 adapter.setNAMEASC();
