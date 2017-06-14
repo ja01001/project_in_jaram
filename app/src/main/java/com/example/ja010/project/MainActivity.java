@@ -186,7 +186,7 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
     public JSONObject getUtube(){
         HttpGet httpGet = new HttpGet(
                 "https://www.googleapis.com/youtube/v3/search?"
-                        + "part=snippet&q=" +ED_SEARCH.getText().toString().trim()
+                        + "part=snippet&q=" +ED_SEARCH.getText().toString().trim().replaceAll(" ","")
                         + "&key="+DeveloperKey.DEVELOPER_KEY+"&maxResults=50");
         HttpClient client = new DefaultHttpClient();
         HttpResponse response;
