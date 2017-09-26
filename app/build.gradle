@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 android {
     signingConfigs {
-        config {
-            keyAlias 'key0'
-            keyPassword 'vksek147'
-            storeFile file('D:/key/project.jks')
-            storePassword 'snfjddl147'
-        }
+            config {
+                keyAlias '...'
+                keyPassword '...'
+                storeFile file('...')
+                storePassword '...'
+            }
     }
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
