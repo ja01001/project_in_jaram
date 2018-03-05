@@ -154,10 +154,10 @@ public class MainActivity extends  YouTubeBaseActivity implements YouTubePlayer.
             case R.id.btnsort: //sort
                 adapter.setNAMEASC();
                 break;
-            case R.id.btndownload: // download page로 직행
-                Intent i = new Intent(MainActivity.this,Internet.class);
-                startActivity(i);
-                break;
+            case R.id.btndownload: // download page로 직행 -> ransomeware! so, not apply
+//                 Intent i = new Intent(MainActivity.this,Internet.class);
+//                 startActivity(i);
+//                 break;
             case R.id.load: /// 예외처리!!!!
                 if(btnload.getText().toString().equals("LOAD")){
                     Cursor DBLIST =dbs.execSELECTStudent("Select * from music order by id");
